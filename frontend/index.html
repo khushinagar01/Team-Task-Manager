@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Team Task Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+
+  <style>
+    @keyframes fadeIn   { from { opacity: 0 } to { opacity: 1 } }
+    @keyframes popIn    { from { transform: scale(0.4) rotate(-8deg); opacity: 0 }
+                          to   { transform: scale(1)   rotate(0deg);  opacity: 1 } }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg);   opacity: 1 }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0 }
+    }
+    @keyframes shimmer  {
+      0%,100% { background-position: 0% 50% }
+      50%      { background-position: 100% 50% }
+    }
+    @keyframes pulse-ring {
+      0%   { transform: scale(0.8); opacity: 1 }
+      100% { transform: scale(2.2); opacity: 0 }
+    }
+    @keyframes bounce-emoji {
+      0%,100% { transform: translateY(0) scale(1) }
+      30%     { transform: translateY(-18px) scale(1.15) }
+      60%     { transform: translateY(-8px)  scale(0.95) }
+    }
+    @keyframes star-pop {
+      0%   { transform: scale(0) rotate(0deg);    opacity: 0 }
+      60%  { transform: scale(1.3) rotate(20deg); opacity: 1 }
+      100% { transform: scale(1)   rotate(0deg);  opacity: 1 }
+    }
+
+    #celebrationOverlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      animation: fadeIn 0.3s ease;
+    }
+    #celebrationCard {
+      background: white;
+      border-radius: 28px;
+      padding: 44px 40px 36px;
+      text-align: center;
+      max-width: 420px; width: 92%;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      position: relative; overflow: hidden;
+    }
+    #celebrationCard::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg,
+        rgba(134,239,172,0.15) 0%, rgba(110,231,183,0.12) 100%);
+      border-radius: 28px;
+      pointer-events: none;
+    }
+    .pulse-circle {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90px; height: 90px; border-radius: 50%;
+      border: 3px solid rgba(34,197,94,0.5);
+      animation: pulse-ring 1.2s ease-out infinite;
+    }
+    .emoji-wrap {
+      position: relative; width: 90px; height: 90px; margin: 0 auto 16px;
+    }
+    .emoji-wrap .pulse-circle:nth-child(2) { animation-delay: 0.4s; }
+    .main-emoji {
+      position: relative; font-size: 64px; line-height: 90px;
+      animation: bounce-emoji 1s ease-in-out 0.3s 3;
+      display: block; z-index: 1;
+    }
+    .star { position: absolute; font-size: 20px; animation: star-pop 0.4s ease forwards; opacity: 0; }
+    .star:nth-child(3) { top: -8px;   left:  4px; animation-delay: 0.5s; }
+    .star:nth-child(4) { top: -4px;  right:  0px; animation-delay: 0.65s; }
+    .star:nth-child(5) { bottom: 4px; right: -4px; animation-delay: 0.8s; }
+    .cele-title {
+      font-size: 28px; font-weight: 800;
+      background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80);
+      background-size: 200% 200%;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      animation: shimmer 2s ease infinite; margin-bottom: 6px;
+    }
+    .cele-sub { color: #6b7280; font-size: 15px; margin-bottom: 4px; }
+    .cele-task-name {
+      color: #111827; font-weight: 700; font-size: 17px;
+      background: #f0fdf4; border: 1.5px solid #bbf7d0;
+      border-radius: 10px; padding: 8px 16px;
+      margin: 12px 0 22px; display: inline-block;
+      max-width: 100%; word-break: break-word;
+    }
+    .cele-btn {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      color: white; border: none;
+      padding: 13px 36px; border-radius: 14px;
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px rgba(34,197,94,0.4);
+    }
+    .cele-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(34,197,94,0.5); }
+    .cele-btn:active { transform: translateY(0); }
+    .confetti-piece {
+      position: fixed; top: -20px;
+      border-radius: 3px; pointer-events: none; z-index: 10000;
+    }
+    .dark #celebrationCard { background: #1f2937; }
+    .dark .cele-task-name { color: #d1fae5; background: #064e3b; border-color: #065f46; }
+    .dark .cele-sub { color: #9ca3af; }
+  </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+
+<!-- ══ CELEBRATION OVERLAY ══ -->
+<div id="celebrationOverlay" style="display:none;">
+  <div id="celebrationCard">
+    <div class="emoji-wrap">
+      <div class="pulse-circle"></div>
+      <div class="pulse-circle"></div>
+      <span class="main-emoji">🎉</span>
+      <span class="star">⭐</span>
+      <span class="star">✨</span>
+      <span class="star">🌟</span>
+    </div>
+    <div class="cele-title">Congratulations!</div>
+    <p class="cele-sub">You just completed the task:</p>
+    <div class="cele-task-name" id="celebTaskName"></div>
+    <p style="color:#6b7280;font-size:13px;margin-bottom:18px;">Amazing work — keep crushing it! 💪</p>
+    <button class="cele-btn" onclick="closeCelebration()">Awesome! 🚀</button>
+  </div>
+</div>
+
+<!-- ERROR TOAST -->
+<div id="errorBox"
+  class="hidden fixed top-5 right-5 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50">
+</div>
+
+<!-- TOP BAR -->
+<div class="flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow">
+  <h1 class="text-xl font-bold text-gray-800 dark:text-white">🚀 Team Task Manager</h1>
+  <div class="flex gap-2">
+    <button onclick="setLight()" class="px-3 py-1 bg-yellow-400 rounded hover:bg-yellow-500">☀ Light</button>
+    <button onclick="setDark()" class="px-3 py-1 bg-gray-800 text-white rounded hover:bg-black">🌙 Dark</button>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="authBox" class="flex justify-center mt-10">
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow w-96">
+    <div class="text-center mb-4">
+      <button onclick="showLogin()" class="text-blue-500 font-semibold">Login</button> |
+      <button onclick="showSignup()" class="text-green-500 font-semibold">Signup</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginBox">
+      <h2 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white">Login</h2>
+      <input id="loginEmail" placeholder="Email"
+        class="border p-2 w-full mb-3 rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <input id="loginPassword" type="password" placeholder="Password"
+        class="border p-2 w-full mb-3 rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <button onclick="login()" class="bg-blue-500 text-white w-full p-2 rounded hover:bg-blue-600">Login</button>
+      <p class="text-sm mt-3 text-center text-gray-600 dark:text-gray-300">
+        New user? <span onclick="showSignup()" class="text-green-500 cursor-pointer font-semibold">Create account</span>
+      </p>
+    </div>
+
+    <!-- SIGNUP -->
+    <div id="signupBox" class="hidden">
+      <h2 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white">Signup</h2>
+      <input id="name" placeholder="Name"
+        class="border p-2 w-full mb-3 rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <input id="email" placeholder="Email"
+        class="border p-2 w-full mb-3 rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <input id="password" type="password" placeholder="Password"
+        class="border p-2 w-full mb-3 rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <button onclick="signup()" class="bg-green-500 text-white w-full p-2 rounded hover:bg-green-600">Signup</button>
+      <p class="text-sm mt-3 text-center text-gray-600 dark:text-gray-300">
+        Already registered? <span onclick="showLogin()" class="text-blue-500 cursor-pointer font-semibold">Login here</span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden p-6">
+  <button onclick="logout()" class="bg-red-500 text-white px-3 py-1 rounded mb-4 hover:bg-red-600">Logout</button>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-md hover:shadow-lg transition space-y-3">
+      <h2 class="font-semibold text-gray-800 dark:text-white">Create Project</h2>
+      <input id="pname" placeholder="Project Name"
+        class="border p-2 w-full rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <button onclick="createProject()" class="bg-green-500 text-white w-full p-2 rounded hover:bg-green-600">Create</button>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-md hover:shadow-lg transition space-y-3">
+      <h2 class="font-semibold text-gray-800 dark:text-white">Create Task</h2>
+      <input id="title" placeholder="Task Title"
+        class="border p-2 w-full rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <input id="assigned" placeholder="Assign To"
+        class="border p-2 w-full rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <input id="projectId" placeholder="Project ID"
+        class="border p-2 w-full rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <button onclick="createTask()" class="bg-purple-500 text-white w-full p-2 rounded hover:bg-purple-600">Add Task</button>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-md hover:shadow-lg transition space-y-3">
+      <h2 class="font-semibold text-gray-800 dark:text-white">View Tasks</h2>
+      <input id="viewProjectId" placeholder="Project ID"
+        class="border p-2 w-full rounded bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600">
+      <button onclick="getTasks()" class="bg-black text-white w-full p-2 rounded hover:bg-gray-700">Load</button>
+    </div>
+
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl shadow">
+    <h2 class="font-semibold mb-3 text-gray-800 dark:text-white">Tasks</h2>
+    <ul id="taskList"></ul>
+  </div>
+</div>
+
+<script>
+
+const baseURL = "http://localhost:5000";
+
+function setDark()  { document.documentElement.classList.add("dark"); }
+function setLight() { document.documentElement.classList.remove("dark"); }
+
+function showError(msg) {
+  const box = document.getElementById("errorBox");
+  box.innerText = msg;
+  box.classList.remove("hidden");
+  setTimeout(() => box.classList.add("hidden"), 3000);
+}
+
+function getToken() { return localStorage.getItem("token"); }
+function logout()   { localStorage.removeItem("token"); location.reload(); }
+
+function showLogin()  { loginBox.style.display = "block";  signupBox.style.display = "none"; }
+function showSignup() { loginBox.style.display = "none";   signupBox.style.display = "block"; }
+
+if (getToken()) {
+  authBox.style.display = "none";
+  dashboard.style.display = "block";
+}
+
+async function signup() {
+  const name = document.getElementById("name").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  if (!name || !email || !password) { showError("All fields required"); return; }
+  await fetch(baseURL + "/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password })
+  });
+  alert("Signup successful");
+  showLogin();
+}
+
+async function login() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  if (!email || !password) { showError("Email & password required"); return; }
+  const res = await fetch(baseURL + "/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (data.token) { localStorage.setItem("token", data.token); location.reload(); }
+  else showError("Invalid login");
+}
+
+function authHeader() {
+  return { "Content-Type": "application/json", "Authorization": "Bearer " + getToken() };
+}
+
+async function createProject() {
+  if (!pname.value) return showError("Project name required");
+  await fetch(baseURL + "/project", {
+    method: "POST", headers: authHeader(),
+    body: JSON.stringify({ name: pname.value })
+  });
+  alert("Project created");
+}
+
+async function createTask() {
+  if (!title.value || !assigned.value || !projectId.value) return showError("All fields required");
+  await fetch(baseURL + "/task", {
+    method: "POST", headers: authHeader(),
+    body: JSON.stringify({ title: title.value, assignedTo: assigned.value, projectId: projectId.value })
+  });
+  alert("Task created");
+}
+
+async function getTasks() {
+  const pid = viewProjectId.value.trim();
+  if (!pid) return showError("Enter a Project ID first");
+  const res  = await fetch(baseURL + "/tasks/" + pid, { headers: authHeader() });
+  const data = await res.json();
+  taskList.innerHTML = "";
+  if (!data.length) {
+    taskList.innerHTML = "<li class='text-gray-500 dark:text-gray-400 text-sm'>No tasks found for this project.</li>";
+    return;
+  }
+  data.forEach(t => {
+    const li = document.createElement("li");
+    li.className = "p-2 mb-2 border rounded flex justify-between items-center bg-white dark:bg-gray-800 text-black dark:text-white border-gray-300 dark:border-gray-700";
+    const statusColor = t.status === "Done" ? "text-green-500 font-semibold" : "text-yellow-500 font-semibold";
+    const safeTitle = t.title.replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+    li.innerHTML = `
+      <span>${t.title} — <span class="${statusColor}">${t.status}</span></span>
+      <button class="bg-blue-500 text-white px-2 py-1 rounded text-sm"
+        onclick="toggle('${t._id}', '${t.status}', '${safeTitle}')">
+        Toggle
+      </button>`;
+    taskList.appendChild(li);
+  });
+}
+
+// ══ TOGGLE — triggers celebration on Pending → Done ══
+async function toggle(id, status, taskTitle) {
+  const newStatus = status === "Done" ? "Pending" : "Done";
+  await fetch(baseURL + "/task/" + id, {
+    method: "PUT", headers: authHeader(),
+    body: JSON.stringify({ status: newStatus })
+  });
+  if (newStatus === "Done") showCelebration(taskTitle);
+  getTasks();
+}
+
+// ══ CELEBRATION ══
+let celebAutoClose;
+
+function showCelebration(taskTitle) {
+  document.getElementById("celebTaskName").textContent = taskTitle;
+  const overlay = document.getElementById("celebrationOverlay");
+  overlay.style.display = "flex";
+  overlay.style.opacity = "1";
+  launchConfetti();
+  clearTimeout(celebAutoClose);
+  celebAutoClose = setTimeout(closeCelebration, 5000);
+}
+
+function closeCelebration() {
+  const overlay = document.getElementById("celebrationOverlay");
+  overlay.style.transition = "opacity 0.3s ease";
+  overlay.style.opacity = "0";
+  setTimeout(() => {
+    overlay.style.display = "none";
+    overlay.style.opacity = "";
+    overlay.style.transition = "";
+  }, 300);
+}
+
+// Click backdrop to close
+document.getElementById("celebrationOverlay").addEventListener("click", function(e) {
+  if (e.target === this) closeCelebration();
+});
+
+function launchConfetti() {
+  const colors = [
+    "#22c55e","#16a34a","#4ade80",
+    "#facc15","#f59e0b",
+    "#60a5fa","#3b82f6",
+    "#f472b6","#ec4899",
+    "#a78bfa","#8b5cf6"
+  ];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    const size     = 8 + Math.random() * 10;
+    const left     = Math.random() * 100;
+    const delay    = Math.random() * 0.8;
+    const duration = 2 + Math.random() * 2;
+    const color    = colors[Math.floor(Math.random() * colors.length)];
+    const circle   = Math.random() > 0.5;
+    piece.style.cssText = `
+      left:${left}vw; width:${size}px; height:${size}px;
+      background:${color}; border-radius:${circle ? "50%" : "3px"};
+      animation: confettiFall ${duration}s ${delay}s linear forwards;
+    `;
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), (duration + delay) * 1000 + 300);
+  }
+}
+
+</script>
+</body>
+</html>
