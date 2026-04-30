@@ -1,12 +1,12 @@
  🚀 Team Task Manager (Full Stack Project)
 
- Overview
+ 🔐 Overview
  
  A full-stack Team Task Management System built using Node.js, Express, MongoDB, and JavaScript. It allows users to register, login, create projects, assign tasks, and track task progress with a clean and responsive dashboard.
 
- Problem Statement
+ 🎯 Problem Statement
  
- Managing team tasks manually leads to confusion, missed deadlines, and poor tracking. This platform solves that by providing a centralized system to create projects, assign tasks, and monitor progress in real time.
+ Managing team tasks manually leads to confusion, missed deadlines, and poor tracking. This platform solves that by providing a centralized system to create projects, assign tasks, and monitor progress in real    time.
 
  ✨ Features
 
