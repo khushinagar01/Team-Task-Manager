@@ -23,29 +23,29 @@
 
 🧠 Approach / Design
 
-Backend: Node.js + Express handles APIs and business logic
-Database: MongoDB stores users, projects, and tasks
-Authentication: JWT tokens for secure login sessions
-Password Security: bcryptjs for hashing passwords
-Frontend: HTML, Tailwind CSS, JavaScript (Fetch API)
-State Flow: User → Project → Task → Status Update
+•Backend: Node.js + Express handles APIs and business logic
+•Database: MongoDB stores users, projects, and tasks
+•Authentication: JWT tokens for secure login sessions
+•Password Security: bcryptjs for hashing passwords
+•Frontend: HTML, Tailwind CSS, JavaScript (Fetch API)
+•State Flow: User → Project → Task → Status Update
 
 🛠️ Tech Stack
 
-Frontend
+•Frontend
 
 HTML5
 Tailwind CSS (CDN)
 JavaScript (Fetch API)
 
-Backend
+•Backend
 
 Node.js
 Express.js
 MongoDB Atlas
 Mongoose
 
-Security
+•Security
 
 bcryptjs
 JSON Web Token (JWT)
