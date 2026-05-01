@@ -15,7 +15,7 @@ app.use(express.json());
 console.log("SERVER STARTING...");
 // DB CONNECT
 console.log("Mongo URL:", process.env.MONGO_URL);
-mongoose.connect(process.env.MONGO_URL)
+mongoose.connect("YOUR_MONGODB_ATLAS_CONNECTION_STRING")
 
 const SECRET = "teamtask_secret_key";
 
