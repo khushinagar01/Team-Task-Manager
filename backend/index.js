@@ -12,8 +12,9 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-
+console.log("SERVER STARTING...");
 // DB CONNECT
+console.log("Mongo URL:", process.env.MONGO_URL);
 mongoose.connect(process.env.MONGO_URL)
 
 const SECRET = "teamtask_secret_key";
