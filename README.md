@@ -92,8 +92,10 @@ PUT /task/:id → Update task status
 Screenshots
 
 <img width="1895" height="821" alt="Screenshot 2026-05-01 015006" src="https://github.com/user-attachments/assets/d7cf19f6-9b06-4661-b84d-87c4eb717378" />
+<img width="1917" height="878" alt="Screenshot 2026-05-01 120347" src="https://github.com/user-attachments/assets/aaaf039e-bd70-4ce1-a0a9-a6d5fec53b96" />
 <img width="1904" height="884" alt="Screenshot 2026-05-01 014940" src="https://github.com/user-attachments/assets/c709ad56-b65c-4fc6-af1e-5ada113a537d" />
 <img width="1914" height="903" alt="Screenshot 2026-05-01 101758" src="https://github.com/user-attachments/assets/a726e962-d25e-4061-baea-d7e8192a8a95" />
+
 
 
 
