@@ -14,9 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 // DB CONNECT
-mongoose.connect("mongodb+srv://khushinagar112003_db_user:Khushi11@cluster0.nxky1at.mongodb.net/teamtaskdb?retryWrites=true&w=majority")
-.then(() => console.log("Database Connected ✅"))
-.catch(err => console.log(err));
+mongoose.connect(process.env.MONGO_URL)
 
 const SECRET = "teamtask_secret_key";
 
@@ -192,6 +190,8 @@ app.get("/", (req, res) => {
 });
 
 // ---------------- START SERVER ----------------
-app.listen(5000, () => {
-  console.log("Server started on port 5000 🚀");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log("Server running on port", PORT);
 });
